@@ -92,13 +92,13 @@ const Navbar: React.FC = () => {
                   to="/login"
                   className="px-4 py-2 text-sm font-medium text-white hover:text-blue-300 transition-colors duration-200"
                 >
-                  Login
+                  Log in
                 </Link>
                 <Link
                   to="/signin"
                   className="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200"
                 >
-                  Signin
+                  Sign in
                 </Link>
               </>
             )}
