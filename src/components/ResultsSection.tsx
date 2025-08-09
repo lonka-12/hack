@@ -4,7 +4,6 @@ import {
   AlertCircle,
   DollarSign,
   Phone,
-  Building,
   Heart,
 } from "lucide-react";
 import type {

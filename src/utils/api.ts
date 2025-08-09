@@ -1,4 +1,4 @@
-import type { TreatmentCosts, FinancialResources, CounselingServices } from '../types';
+import type { FinancialResources, CounselingServices } from '../types';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
