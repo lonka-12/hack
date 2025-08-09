@@ -138,7 +138,7 @@ export const useChatAutoSave = (
   // Load conversation for current context
   const loadConversationForContext = useCallback((): ChatMessage[] => {
     const conversations = loadSavedConversations();
-    const contextKey = `${selectedState}-${cancerType}-${stage}-${insuranceType}`;
+    // const contextKey = `${selectedState}-${cancerType}-${stage}-${insuranceType}`;
     
     const matchingConversation = conversations.find(conv => 
       conv.context.selectedState === selectedState &&
