@@ -4,4 +4,6 @@ export { default as TreatmentForm } from './TreatmentForm';
 export { default as ResultsSection } from './ResultsSection';
 export { default as ChatAssistant } from './ChatAssistant';
 export { default as QuickActions } from './QuickActions';
-export { default as Footer } from './Footer'; 
+export { default as Footer } from './Footer';
+export { default as Navbar } from './Navbar';
+export { default as ProtectedRoute } from './ProtectedRoute'; 

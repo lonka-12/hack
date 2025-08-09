@@ -1,6 +1,20 @@
 export interface ChatMessage {
   type: "user" | "ai";
   content: string;
+  timestamp?: string;
+}
+
+export interface ChatConversation {
+  id: string;
+  messages: ChatMessage[];
+  context: {
+    selectedState: string;
+    cancerType: string;
+    stage: string;
+    insuranceType: string;
+  };
+  createdAt: string;
+  lastUpdated: string;
 }
 
 export interface TreatmentCosts {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { MapPin, ChevronDown, Search, FileText } from "lucide-react";
 import {
   STATES,
@@ -6,6 +6,7 @@ import {
   CANCER_STAGES,
   INSURANCE_TYPES,
 } from "../constants";
+import { useTreatmentFormAutoSave } from "../hooks/useTreatmentFormAutoSave";
 
 interface TreatmentFormProps {
   selectedState: string;
@@ -32,6 +33,37 @@ const TreatmentForm: React.FC<TreatmentFormProps> = ({
   onSearch,
   isLoadingData,
 }) => {
+  const { autoSave, loadSavedData } = useTreatmentFormAutoSave();
+
+  // Load saved data on component mount
+  useEffect(() => {
+    const savedData = loadSavedData();
+    if (savedData.selectedState && !selectedState) {
+      onStateChange(savedData.selectedState);
+    }
+    if (savedData.cancerType && !cancerType) {
+      onCancerTypeChange(savedData.cancerType);
+    }
+    if (savedData.stage && !stage) {
+      onStageChange(savedData.stage);
+    }
+    if (savedData.insuranceType && !insuranceType) {
+      onInsuranceTypeChange(savedData.insuranceType);
+    }
+  }, []);
+
+  // Auto-save whenever form data changes
+  useEffect(() => {
+    if (selectedState || cancerType || stage || insuranceType) {
+      autoSave({
+        selectedState,
+        cancerType,
+        stage,
+        insuranceType,
+      });
+    }
+  }, [selectedState, cancerType, stage, insuranceType, autoSave]);
+
   return (
     <div className="bg-gray-800 shadow-2xl border border-gray-700 overflow-hidden">
       <div className="bg-gradient-to-r from-cyan-600/20 to-emerald-600/20 p-8 border-b border-gray-700">

@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Bot, MessageCircle } from "lucide-react";
 import type { ChatMessage } from "../types";
 import { sendMessageToAI } from "../utils/api";
+import { useChatAutoSave } from "../hooks/useChatAutoSave";
+import { useAuth } from "../contexts/AuthContext";
 
 interface ChatAssistantProps {
   selectedState: string;
@@ -139,6 +141,35 @@ const ChatAssistant: React.FC<ChatAssistantProps> = ({
   const [chatInput, setChatInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
 
+  const { currentUser } = useAuth();
+  const { autoSave, loadConversationForContext } = useChatAutoSave(
+    selectedState,
+    cancerType,
+    stage,
+    insuranceType
+  );
+
+  // Load saved conversation on component mount or when context changes
+  useEffect(() => {
+    const savedMessages = loadConversationForContext();
+    if (savedMessages.length > 0) {
+      setChatMessages(savedMessages);
+    }
+  }, [
+    selectedState,
+    cancerType,
+    stage,
+    insuranceType,
+    loadConversationForContext,
+  ]);
+
+  // Auto-save whenever chat messages change
+  useEffect(() => {
+    if (chatMessages.length > 0) {
+      autoSave(chatMessages);
+    }
+  }, [chatMessages, autoSave]);
+
   const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
@@ -147,7 +178,11 @@ const ChatAssistant: React.FC<ChatAssistantProps> = ({
     setChatInput("");
     setChatMessages((prev) => [
       ...prev,
-      { type: "user" as const, content: userMessage },
+      {
+        type: "user" as const,
+        content: userMessage,
+        timestamp: new Date().toISOString(),
+      },
     ]);
     setIsTyping(true);
 
@@ -160,20 +195,69 @@ const ChatAssistant: React.FC<ChatAssistantProps> = ({
     setIsTyping(false);
     setChatMessages((prev) => [
       ...prev,
-      { type: "ai" as const, content: aiResponse },
+      {
+        type: "ai" as const,
+        content: aiResponse,
+        timestamp: new Date().toISOString(),
+      },
     ]);
   };
 
   return (
     <div className="bg-gray-800 shadow-2xl border border-gray-700 overflow-hidden">
       <div className="bg-gradient-to-r from-cyan-600/20 to-emerald-600/20 p-6 border-b border-gray-700">
-        <h3 className="text-2xl font-bold text-white flex items-center">
-          <Bot className="mr-3 text-cyan-400" />
-          AI Assistant
-        </h3>
-        <p className="text-gray-300 mt-2">
-          Ask questions about treatment costs and resources
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-2xl font-bold text-white flex items-center">
+              <Bot className="mr-3 text-cyan-400" />
+              AI Assistant
+            </h3>
+            <p className="text-gray-300 mt-2">
+              Ask questions about treatment costs and resources
+            </p>
+          </div>
+          {chatMessages.length > 0 && (
+            <button
+              onClick={() => {
+                setChatMessages([]);
+                // Clear the conversation from storage
+                if (currentUser) {
+                  // For authenticated users, this will be handled by the auto-save
+                  // when the messages array becomes empty
+                } else {
+                  // For non-authenticated users, clear from localStorage
+                  try {
+                    const existingConversations = JSON.parse(
+                      localStorage.getItem("chatConversations") || "[]"
+                    );
+                    const filteredConversations = existingConversations.filter(
+                      (conv: any) =>
+                        !(
+                          conv.context.selectedState === selectedState &&
+                          conv.context.cancerType === cancerType &&
+                          conv.context.stage === stage &&
+                          conv.context.insuranceType === insuranceType
+                        )
+                    );
+                    localStorage.setItem(
+                      "chatConversations",
+                      JSON.stringify(filteredConversations)
+                    );
+                  } catch (error) {
+                    console.warn(
+                      "Failed to clear conversation from localStorage:",
+                      error
+                    );
+                  }
+                }
+              }}
+              className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded transition-colors duration-200"
+              title="Clear conversation"
+            >
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Chat Messages */}
@@ -243,6 +327,12 @@ const ChatAssistant: React.FC<ChatAssistantProps> = ({
             <MessageCircle className="w-5 h-5" />
           </button>
         </form>
+        {chatMessages.length > 0 && (
+          <div className="mt-3 text-xs text-gray-400 text-center">
+            💾 Conversations are automatically saved
+            {currentUser ? " to your profile" : " locally"}
+          </div>
+        )}
       </div>
     </div>
   );
