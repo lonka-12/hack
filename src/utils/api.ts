@@ -1,8 +1,8 @@
 import type { FinancialResources, CounselingServices } from '../types';
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
-const GOOGLE_CSE_ID = process.env.GOOGLE_CSE_ID;
+const OPENAI_API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
+const GOOGLE_CSE_ID = process.env.NEXT_PUBLIC_GOOGLE_CSE_ID;
 
 export const fetchTreatmentCosts = async (cancerType: string, stage: string): Promise<{ [treatment: string]: string }> => {
   if (!OPENAI_API_KEY) return {};
